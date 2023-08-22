@@ -168,7 +168,7 @@ const getNextToken = (textState: Pointer): Token => {
     return token(tokens.EOF, null);
 }
 
-export default {
+export {
   createState, modifyState, 
   skipWhitespace, advance_char,
   advance_pos, checkToken, 

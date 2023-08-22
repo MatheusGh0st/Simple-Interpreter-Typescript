@@ -5,7 +5,7 @@
 *                                          *
 ********************************************/
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.tokens = void 0;
+exports.getNextToken = exports.integer = exports.checkToken = exports.advance_pos = exports.advance_char = exports.skipWhitespace = exports.modifyState = exports.createState = exports.tokens = void 0;
 var tokens;
 (function (tokens) {
     tokens[tokens["I"] = 1] = "I";
@@ -25,6 +25,7 @@ var tokens;
 function createState(text, curr_char, curr_pos = 0, curr_token) {
     return { text, curr_char, curr_pos, curr_token };
 }
+exports.createState = createState;
 ;
 const modifyState = (oldState, newState) => {
     oldState.text = newState.text;
@@ -33,12 +34,14 @@ const modifyState = (oldState, newState) => {
     oldState.curr_token = newState.curr_token;
     return oldState;
 };
+exports.modifyState = modifyState;
 const skipWhitespace = (textState) => {
     while (textState.curr_char !== undefined && textState.curr_char === ' ') {
         textState = advance_char(textState);
     }
     return textState;
 };
+exports.skipWhitespace = skipWhitespace;
 const advance_char = (textState) => {
     textState = advance_pos(textState);
     if (!(textState.text[textState.curr_pos] === '\0')) {
@@ -48,10 +51,12 @@ const advance_char = (textState) => {
     let state = createState(textState.text, '\0', textState.curr_pos, tokens.EOF);
     return modifyState(textState, state);
 };
+exports.advance_char = advance_char;
 const advance_pos = (textState) => {
     let state = createState(textState.text, textState.text[textState.curr_pos], textState.curr_pos + 1, textState.curr_token);
     return modifyState(textState, state);
 };
+exports.advance_pos = advance_pos;
 const token = (type, value) => {
     return { type, value };
 };
@@ -60,6 +65,7 @@ const checkToken = (token, state) => {
         state.curr_token = token;
     }
 };
+exports.checkToken = checkToken;
 const integer = (textState) => {
     let result = '';
     while (textState.curr_char !== undefined &&
@@ -69,6 +75,7 @@ const integer = (textState) => {
     }
     return parseInt(result);
 };
+exports.integer = integer;
 const getNextToken = (textState) => {
     while (textState.curr_char !== undefined) {
         if (textState.curr_char === ' ') {
@@ -112,9 +119,4 @@ const getNextToken = (textState) => {
     textState.curr_token = tokens.EOF;
     return token(tokens.EOF, null);
 };
-exports.default = {
-    createState, modifyState,
-    skipWhitespace, advance_char,
-    advance_pos, checkToken,
-    integer, getNextToken
-};
+exports.getNextToken = getNextToken;

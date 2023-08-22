@@ -4,21 +4,17 @@
 *                                          *
 ********************************************/
 
-const { modifyState, tokens,
-  skipWhitespace, advance_char,
-  advance_pos, token, checkToken,
-  integer, getNextToken, Pointer,
-  Token } = require('./lex');
+import { tokens, checkToken, getNextToken, Pointer} from './lex';
 
 type node = {
     type: string
     value?: any
-    token?: typeof tokens
+    token?: tokens
     children?: node[]
 }
 
 
-const numberLiteral = (value: number, token: typeof tokens): node => ({
+const numberLiteral = (value: number, token: tokens): node => ({
     type: "NumberLiteral",
     token,
     value
@@ -32,7 +28,7 @@ const binaryExpression = (operator: string, left: node, right: node): node => ({
 });
 
 
-const term = (textState: typeof Pointer): node => {
+const term = (textState: Pointer): node => {
     let context = textState;
 
     let node = factor(context);
@@ -53,7 +49,7 @@ const term = (textState: typeof Pointer): node => {
 }
 
 
-const factor = (textState: typeof Pointer): node => {
+const factor = (textState: Pointer): node => {
     let context = textState;
 
     let token = getNextToken(context);
@@ -74,7 +70,7 @@ const factor = (textState: typeof Pointer): node => {
 }
 
 
-const parseToken = (token: typeof tokens): string => {
+const parseToken = (token: tokens): string => {
     switch (token) {
         case 3:
             return tokens[tokens.PLUS].toString();
@@ -90,7 +86,7 @@ const parseToken = (token: typeof tokens): string => {
 };
 
 
-const expr = (textState: typeof Pointer): node => {
+let expr = (textState: Pointer): node => {
     let context = textState;
 
     let node = term(context);
@@ -118,7 +114,7 @@ const expr = (textState: typeof Pointer): node => {
 }
 
 
-const createParseTree = (node: any): node => {
+let createParseTree = (node: any): node => {
     if (node.type === "BinaryExpression") {
             const left = createParseTree(node.children[0]);
             const right = createParseTree(node.children[1]);
@@ -139,7 +135,7 @@ const createParseTree = (node: any): node => {
 };
 
 
-const resolveParseTree = (parseTree: node): number => {
+let resolveParseTree = (parseTree: node): number => {
     if (parseTree.type === "Number") {
       return parseInt(parseTree.value || "0");
     } else if (parseTree.type === "PLUS") {
@@ -180,7 +176,7 @@ const resolveParseTree = (parseTree: node): number => {
     }
 };
 
-export default {
+export {
   expr,
   createParseTree,
   resolveParseTree

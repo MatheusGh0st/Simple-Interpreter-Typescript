@@ -5,7 +5,8 @@
 *                                          *
 ********************************************/
 Object.defineProperty(exports, "__esModule", { value: true });
-const { modifyState, tokens, skipWhitespace, advance_char, advance_pos, token, checkToken, integer, getNextToken, Pointer, Token } = require('./lex');
+exports.resolveParseTree = exports.createParseTree = exports.expr = void 0;
+const lex_1 = require("./lex");
 const numberLiteral = (value, token) => ({
     type: "NumberLiteral",
     token,
@@ -20,12 +21,12 @@ const term = (textState) => {
     let context = textState;
     let node = factor(context);
     while (context.curr_char !== undefined) {
-        let token = getNextToken(context);
-        if (token.type === tokens.MULT) {
-            checkToken(token.type, context);
+        let token = (0, lex_1.getNextToken)(context);
+        if (token.type === lex_1.tokens.MULT) {
+            (0, lex_1.checkToken)(token.type, context);
         }
-        else if (token.type === tokens.DIV) {
-            checkToken(token.type, context);
+        else if (token.type === lex_1.tokens.DIV) {
+            (0, lex_1.checkToken)(token.type, context);
         }
         node = binaryExpression(parseToken(token.type), node, factor(context));
     }
@@ -33,52 +34,53 @@ const term = (textState) => {
 };
 const factor = (textState) => {
     let context = textState;
-    let token = getNextToken(context);
-    if (token.type === tokens.INTEGER) {
-        checkToken(token.type, context);
-        return numberLiteral(token.value, tokens.INTEGER);
+    let token = (0, lex_1.getNextToken)(context);
+    if (token.type === lex_1.tokens.INTEGER) {
+        (0, lex_1.checkToken)(token.type, context);
+        return numberLiteral(token.value, lex_1.tokens.INTEGER);
     }
-    if (token.type === tokens.LPAREN) {
-        checkToken(token.type, context);
+    if (token.type === lex_1.tokens.LPAREN) {
+        (0, lex_1.checkToken)(token.type, context);
         let node = expr(context);
-        checkToken(tokens.RPAREN, context);
+        (0, lex_1.checkToken)(lex_1.tokens.RPAREN, context);
         return node;
     }
-    return { type: tokens.I.toString() };
+    return { type: lex_1.tokens.I.toString() };
 };
 const parseToken = (token) => {
     switch (token) {
         case 3:
-            return tokens[tokens.PLUS].toString();
+            return lex_1.tokens[lex_1.tokens.PLUS].toString();
         case 4:
-            return tokens[tokens.MINUS].toString();
+            return lex_1.tokens[lex_1.tokens.MINUS].toString();
         case 5:
-            return tokens[tokens.MULT].toString();
+            return lex_1.tokens[lex_1.tokens.MULT].toString();
         case 6:
-            return tokens[tokens.DIV].toString();
+            return lex_1.tokens[lex_1.tokens.DIV].toString();
         default:
-            return tokens[tokens.I].toString();
+            return lex_1.tokens[lex_1.tokens.I].toString();
     }
 };
-const expr = (textState) => {
+let expr = (textState) => {
     let context = textState;
     let node = term(context);
     let leftToken;
     let rightToken;
     [{ token: leftToken }, { token: rightToken }] = node.children;
-    while (((leftToken in tokens) || (rightToken in tokens)) && (context.curr_char !== undefined)) {
-        let token = getNextToken(context);
-        if (token.type === tokens.PLUS) {
-            checkToken(token.type, context);
+    while (((leftToken in lex_1.tokens) || (rightToken in lex_1.tokens)) && (context.curr_char !== undefined)) {
+        let token = (0, lex_1.getNextToken)(context);
+        if (token.type === lex_1.tokens.PLUS) {
+            (0, lex_1.checkToken)(token.type, context);
         }
-        if (token.type === tokens.MINUS) {
-            checkToken(token.type, context);
+        if (token.type === lex_1.tokens.MINUS) {
+            (0, lex_1.checkToken)(token.type, context);
         }
         node = binaryExpression(parseToken(token.type), node, term(context));
     }
     return node;
 };
-const createParseTree = (node) => {
+exports.expr = expr;
+let createParseTree = (node) => {
     var _a;
     if (node.type === "BinaryExpression") {
         const left = createParseTree(node.children[0]);
@@ -100,7 +102,8 @@ const createParseTree = (node) => {
         };
     }
 };
-const resolveParseTree = (parseTree) => {
+exports.createParseTree = createParseTree;
+let resolveParseTree = (parseTree) => {
     if (parseTree.type === "Number") {
         return parseInt(parseTree.value || "0");
     }
@@ -151,8 +154,4 @@ const resolveParseTree = (parseTree) => {
         throw new Error(`Unknown parse tree node type: ${parseTree.type}`);
     }
 };
-exports.default = {
-    expr,
-    createParseTree,
-    resolveParseTree
-};
+exports.resolveParseTree = resolveParseTree;
