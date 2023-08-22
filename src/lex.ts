@@ -32,8 +32,7 @@ export interface Pointer {
 };
 
 
-// let createState = function (text: string,
-function createState(text: string, 
+const createState = (text: string,
   curr_char: string, 
   curr_pos: number = 0, 
   curr_token: tokens): Pointer {
