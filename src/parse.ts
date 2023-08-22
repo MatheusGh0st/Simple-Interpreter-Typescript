@@ -4,16 +4,21 @@
 *                                          *
 ********************************************/
 
+const { modifyState, tokens,
+  skipWhitespace, advance_char,
+  advance_pos, token, checkToken,
+  integer, getNextToken, Pointer,
+  Token } = require('./lex');
 
 type node = {
     type: string
     value?: any
-    token?: tokens
+    token?: typeof tokens
     children?: node[]
 }
 
 
-const numberLiteral = (value: number, token: tokens): node => ({
+const numberLiteral = (value: number, token: typeof tokens): node => ({
     type: "NumberLiteral",
     token,
     value
@@ -27,7 +32,7 @@ const binaryExpression = (operator: string, left: node, right: node): node => ({
 });
 
 
-const term = (textState: Pointer): node => {
+const term = (textState: typeof Pointer): node => {
     let context = textState;
 
     let node = factor(context);
@@ -48,7 +53,7 @@ const term = (textState: Pointer): node => {
 }
 
 
-const factor = (textState: Pointer): node => {
+const factor = (textState: typeof Pointer): node => {
     let context = textState;
 
     let token = getNextToken(context);
@@ -69,7 +74,7 @@ const factor = (textState: Pointer): node => {
 }
 
 
-const parseToken = (token: tokens): string => {
+const parseToken = (token: typeof tokens): string => {
     switch (token) {
         case 3:
             return tokens[tokens.PLUS].toString();
@@ -85,7 +90,7 @@ const parseToken = (token: tokens): string => {
 };
 
 
-const expr = (textState: Pointer): node => {
+const expr = (textState: typeof Pointer): node => {
     let context = textState;
 
     let node = term(context);
@@ -173,4 +178,10 @@ const resolveParseTree = (parseTree: node): number => {
     } else {
       throw new Error(`Unknown parse tree node type: ${parseTree.type}`);
     }
+};
+
+export default {
+  expr,
+  createParseTree,
+  resolveParseTree
 };
