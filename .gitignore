@@ -1,2 +1,5 @@
 # Ignore dependencies
 node_modules/
+
+# Ignore javascript files
+*.js
